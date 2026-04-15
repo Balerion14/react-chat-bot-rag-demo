@@ -203,12 +203,20 @@ export default function ChatScreen() {
             });
           }
 
-          if (message.needToRetrieveContext && message.retrievedContext) {
+          if (message.needToRetrieveContext) {
             newMessages.push({
-              id: `context-${message.id}`,
-              text: `Contexte récupéré: ${JSON.stringify(message.retrievedContext)}`,
+              id: `need-context-${message.id}`,
+              text: 'Contexte requis',
               type: 'step',
             });
+
+            if (message.retrievedContext) {
+              newMessages.push({
+                id: `context-${message.id}`,
+                text: `Contexte récupéré: ${JSON.stringify(message.retrievedContext)}`,
+                type: 'step',
+              });
+            }
           }
 
           if (message.firstResponse) {

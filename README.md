@@ -10,7 +10,7 @@ The goal of the project is to simulate a reservation support assistant:
 - the mobile app is only the client UI layer built with React Native
 - all RAG logic, LLM calls, and database access are handled by the Hono backend
 - this separation keeps the client/server boundary cleaner and avoids exposing database access or model orchestration directly in the frontend
-- the backend loads reservation context and conversation history, classifies the intent, decides whether to filter to a human agent, optionally retrieves property knowledge, generates a response, runs guardrails, and stores the result in the database
+- the backend loads reservation context and conversation history, classifies the user intent to narrow retrieval to the relevant context only, decides whether to filter to a human agent, optionally retrieves targeted property knowledge, generates a response, runs guardrails, and stores the result in the database
 - there is currently no real API protection layer such as authentication or signed client access because this repository is intended for local testing and demo purposes only
 
 ## Repository Structure
@@ -33,13 +33,15 @@ server/
 3. The backend verifies the reservation exists.
 4. The backend runs the RAG pipeline:
    - load reservation context and chat history
-   - classify intent
+   - classify intent first to identify which context is actually relevant
    - decide whether human handoff is needed
-   - optionally retrieve extra property context
+   - retrieve only the extra property context linked to that intent
    - generate a first response
    - run a guardrail check
    - save the run in the database
 5. The mobile app reloads the conversation and displays the user message, intermediate steps, and final answer.
+
+This project intentionally keeps retrieval simple. It does not use embeddings or vector similarity search to find the closest chunks, because that would be overkill for this small and controlled dataset. The intent classification step already acts as a strong filter, which keeps prompts smaller and helps reduce hallucinations, noise, and avoidable errors by decomposing the workflow into simpler steps. The same routing idea could also be implemented with a more classic ML classifier instead of an LLM.
 
 ![Global workflow](schema_flow_rag.png)
 

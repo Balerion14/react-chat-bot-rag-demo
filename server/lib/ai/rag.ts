@@ -77,7 +77,18 @@ Return JSON only with:
  * Evaluates whether additional property knowledge must be retrieved before generating a reply.
  */
 export async function needRetrieveContext(userInput: UserInput, classifiedIntent: Intent) {
-    const prompt = `Based on the user's input ${JSON.stringify(userInput)} and the classified intent "${classifiedIntent}", determine if we need to retrieve more context information to better understand the user's intent. Please answer with "yes" or "no".`;
+    const prompt = `
+Based on the user's input ${JSON.stringify(userInput)} and the classified intent ${JSON.stringify(classifiedIntent)}, determine if additional property-specific context is needed to answer the user correctly.
+
+Set needToRetrieve to true when the answer depends on factual property knowledge such as check-in instructions, house rules, amenities, wifi, parking, transport, address details, or other property information stored in the knowledge base not present in the user's input context.
+
+Set needToRetrieve to false when the user message can be answered without retrieving extra property context.
+
+Return JSON only with:
+- needToRetrieve
+- reason
+- confidentScore
+`;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
         model: AI_GEMINI_MODEL,
         contents: prompt,
