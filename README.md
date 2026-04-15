@@ -7,9 +7,11 @@ This repository contains a small end-to-end demo of a chat assistant with:
 
 The goal of the project is to simulate a reservation support assistant:
 
-- the mobile app lets the user select a reservation and send messages
-- the backend loads reservation context and conversation history
-- a RAG-style pipeline classifies the intent, decides whether to filter to a human agent, optionally retrieves property knowledge, generates a response, runs guardrails, and stores the result in the database
+- the mobile app is only the client UI layer built with React Native
+- all RAG logic, LLM calls, and database access are handled by the Hono backend
+- this separation keeps the client/server boundary cleaner and avoids exposing database access or model orchestration directly in the frontend
+- the backend loads reservation context and conversation history, classifies the intent, decides whether to filter to a human agent, optionally retrieves property knowledge, generates a response, runs guardrails, and stores the result in the database
+- there is currently no real API protection layer such as authentication or signed client access because this repository is intended for local testing and demo purposes only
 
 ## Repository Structure
 
@@ -40,6 +42,8 @@ server/
 5. The mobile app reloads the conversation and displays the user message, intermediate steps, and final answer.
 
 ![Global workflow](schema_flow_rag.png)
+
+If the workflow image is not readable enough, the editable Excalidraw source file is also available at the repository root: [pipeline_demo_rag.excalidraw](pipeline_demo_rag.excalidraw).
 
 ## Tech Stack
 
