@@ -2,7 +2,7 @@ import { db } from "../../db";
 import { chatRunsTable, knowledgeItemsTable, propertiesTable, reservationsTable } from "../../db/schema";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { type UserInput, userInputSchema, type Intent, intentSchema, filterSchema, type NeedRetrieveContextResult, needRetrieveContextSchema, type FirstResponse, firstResponseSchema, guardrailSchema } from "./type";
-import { AI_GEMINI_CLIENT } from "./constant";
+import { AI_GEMINI_CLIENT, AI_GEMINI_MODEL } from "./constant";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
 /**
@@ -33,7 +33,7 @@ export async function getUserInputSchema(input: UserInput) {
 export async function classifyUserIntent(userInput: UserInput, intentList: string[]) {
     const prompt = `Classify the user's intent based on the following input user and context (history, user information, etc): ${JSON.stringify(userInput)}. The possible intents are: ${intentList.join(", ")}. Please provide the most likely intent or several intent if there are multiple intents that are equally likely.`;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: AI_GEMINI_MODEL,
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -62,7 +62,7 @@ Return JSON only with:
 - confidentScore
 `;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: AI_GEMINI_MODEL,
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -79,7 +79,7 @@ Return JSON only with:
 export async function needRetrieveContext(userInput: UserInput, classifiedIntent: Intent) {
     const prompt = `Based on the user's input ${JSON.stringify(userInput)} and the classified intent "${classifiedIntent}", determine if we need to retrieve more context information to better understand the user's intent. Please answer with "yes" or "no".`;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: AI_GEMINI_MODEL,
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -96,7 +96,7 @@ export async function needRetrieveContext(userInput: UserInput, classifiedIntent
 export async function generateResponse(userInput: UserInput, classifiedIntent: Intent, retrievedContext: string[]) {
     const prompt = `Based on the user's input ${JSON.stringify(userInput)}, the classified intent "${classifiedIntent}", and the retrieved context information ${JSON.stringify(retrievedContext)}, generate a response to reply to the user.`;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: AI_GEMINI_MODEL,
         contents: prompt,
         config: {
             responseMimeType: "application/json",
@@ -113,7 +113,7 @@ export async function generateResponse(userInput: UserInput, classifiedIntent: I
 export async function guardrailCheck(userInput: UserInput, classifiedIntent: Intent, generatedResponse: FirstResponse) {
     const prompt = `Based on the user's input ${JSON.stringify(userInput)}, the classified intent "${classifiedIntent}", and the generated response ${JSON.stringify(generatedResponse)}, evaluate if the generated response respond of user question and that llm not hallucinate. If not, please determine if we need to ask clarification question, need to re start the conversation or need to call human agent to assist. Please answer with "appropriate", "ask_clarification", "restart" or "human_agent".`;
     const response = await AI_GEMINI_CLIENT.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: AI_GEMINI_MODEL,
         contents: prompt,
         config: {
             responseMimeType: "application/json",
