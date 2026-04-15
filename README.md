@@ -58,6 +58,7 @@ If the workflow image is not readable enough, the editable Excalidraw source fil
 
 ### Server
 
+- TypeScript
 - Bun
 - Hono
 - Drizzle ORM
